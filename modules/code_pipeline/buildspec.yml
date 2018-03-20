@@ -1,0 +1,34 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - pip install awscli --upgrade --user
+      - echo `aws --version`
+      - echo Logging in to Amazon ECR...
+      - $(aws ecr get-login --region ${region} --no-include-email)
+      - OSTICKET_REPO_URI=${osticket_repo_url}
+      - MYSQL_REPO_URI=${mysql_repo_url}
+      - echo Entered the pre_build phase...
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Pulling Docker images...
+      - docker pull mysql
+      - docker pull campbellsoftwaresolutions/osticket
+      - echo Tagging Docker images...
+      - docker tag mysql:latest $MYSQL_REPO_URI:latest
+      - docker tag campbellsoftwaresolutions/osticket:latest $OSTICKET_REPO_URI:latest
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $MYSQL_REPO_URI:latest
+      - docker push $OSTICKET_REPO_URI:latest
+      - echo Writing image definitions file...
+      - printf '[{"name":"mysql","imageUri":"%s"}]' $MYSQL_REPO_URI:latest > imagedefinitions_mysql.json
+      - printf '[{"name":"osticket","imageUri":"%s"}]' $OSTICKET_REPO_URI:latest > imagedefinitions_osticket.json
+      - aws ecs run-task --launch-type FARGATE --cluster ${cluster_name} --task-definition ${environment}_mysql --network-configuration "awsvpcConfiguration={subnets=[${subnet_id}],securityGroups=[${security_group_ids}]}"
+      - aws ecs run-task --launch-type FARGATE --cluster ${cluster_name} --task-definition ${environment}_osticket --network-configuration "awsvpcConfiguration={subnets=[${subnet_id}],securityGroups=[${security_group_ids}]}"
+artifacts:
+  files: imagedefinitions_mysql.json, imagedefinitions_osticket.json

@@ -1,0 +1,7 @@
+environment		      = "dev"
+region                        = "us-east-1"
+mysql_database                = "osticket"
+mysql_password                = "secret"
+mysql_root_password           = "secret"
+mysql_user                    = "osticket"
+mysql_host                    = "mysql"
