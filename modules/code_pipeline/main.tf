@@ -111,7 +111,7 @@ resource "aws_codepipeline" "pipeline" {
         Owner      = "chikeagu"
         Repo       = "service-desk-docker"
         Branch     = "master"
-        OAuthToken = "04d5e163466d627dd692c148562012da3a76694b"
+        OAuthToken = "0c6b0fb157431ae42eafe124e00bea8560c26422"
       }
     }
   }
