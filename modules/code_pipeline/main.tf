@@ -51,12 +51,13 @@ data "template_file" "buildspec" {
   template = "${file("${path.module}/buildspec.yml")}"
 
   vars {
-    osticket_repo_url     = "${var.osticket_repo_url}"
+    osticket_repo_url  = "${var.osticket_repo_url}"
     mysql_repo_url     = "${var.mysql_repo_url}"
     region             = "${var.region}"
     cluster_name       = "${var.ecs_cluster_name}"
     subnet_id          = "${var.run_task_subnet_id}"
     security_group_ids = "${join(",", var.run_task_security_group_ids)}"
+    environment        = "${var.environment}"
   }
 }
 
@@ -87,7 +88,7 @@ resource "aws_codebuild_project" "service_desk_build" {
 /* CodePipeline */
 
 resource "aws_codepipeline" "pipeline" {
-  name     = "openjobs-pipeline"
+  name     = "service-desk-pipeline"
   role_arn = "${aws_iam_role.codepipeline_role.arn}"
 
   artifact_store {
@@ -101,14 +102,14 @@ resource "aws_codepipeline" "pipeline" {
     action {
       name             = "Source"
       category         = "Source"
-      owner            = "chikeagu"
+      owner            = "ThirdParty"
       provider         = "GitHub"
       version          = "1"
       output_artifacts = ["source"]
 
       configuration {
         Owner      = "chikeagu"
-        Repo       = "service-desk"
+        Repo       = "service-desk-docker"
         Branch     = "master"
         OAuthToken = "04d5e163466d627dd692c148562012da3a76694b"
       }
@@ -116,7 +117,7 @@ resource "aws_codepipeline" "pipeline" {
   }
 
   stage {
-    name = "Build"
+    name = "Build_0"
 
     action {
       name             = "Build"
@@ -125,7 +126,7 @@ resource "aws_codepipeline" "pipeline" {
       provider         = "CodeBuild"
       version          = "1"
       input_artifacts  = ["source"]
-      output_artifacts = ["imagedefinitions"]
+      output_artifacts = ["imagedefinitions_mysql"]
 
       configuration {
         ProjectName = "service-desk-codebuild"
@@ -134,20 +135,57 @@ resource "aws_codepipeline" "pipeline" {
   }
 
   stage {
-    name = "${var.environment}"
+    name = "Build_1"
+
+    action {
+      name             = "Build"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1" 
+      input_artifacts  = ["source"]
+      output_artifacts = ["imagedefinitions_osticket"]
+
+      configuration {
+        ProjectName = "service-desk-codebuild"
+      }   
+    }   
+  }
+
+  stage {
+    name = "${var.environment}_0"
 
     action {
       name            = "Deploy"
       category        = "Deploy"
       owner           = "AWS"
       provider        = "ECS"
-      input_artifacts = ["imagedefinitions"]
+      input_artifacts = ["imagedefinitions_mysql"]
       version         = "1"
 
       configuration {
         ClusterName = "${var.ecs_cluster_name}"
-        ServiceName = "${var.ecs_service_name}"
-        FileName    = "imagedefinitions.json"
+        ServiceName = "${var.ecs_service_name_mysql}"
+        FileName    = "imagedefinitions_mysql.json"
+      }
+    }
+  }
+
+  stage {
+    name = "${var.environment}_1"
+
+    action {
+      name            = "Deploy"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "ECS"
+      input_artifacts = ["imagedefinitions_osticket"]
+      version         = "1"
+
+      configuration {
+        ClusterName = "${var.ecs_cluster_name}"
+        ServiceName = "${var.ecs_service_name_osticket}"
+        FileName    = "imagedefinitions_osticket.json"
       }
     }
   }

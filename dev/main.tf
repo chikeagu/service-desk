@@ -38,3 +38,16 @@ module "ecs" {
   mysql_user          = "${var.mysql_user}"
   mysql_host          = "${var.mysql_host}"
 }
+
+module "code_pipeline" {
+  source                               = "../modules/code_pipeline"
+  osticket_repo_url                    = "${module.ecs.osticket_repository_url}"
+  mysql_repo_url                       = "${module.ecs.mysql_repository_url}"
+  region                               = "${var.region}"
+  ecs_service_name_mysql               = "${module.ecs.mysql_service_name}"
+  ecs_service_name_osticket            = "${module.ecs.osticket_service_name}"
+  ecs_cluster_name                     = "${module.ecs.cluster_name}"
+  run_task_subnet_id                   = "${module.networking.private_subnets_id[0]}"
+  run_task_security_group_ids = ["${module.networking.security_groups_ids}", "${module.ecs.security_group_id}"]
+  environment                 = "${var.environment}"
+}
