@@ -145,3 +145,52 @@ resource "aws_security_group" "default" {
     Environment = "${var.environment}"
   }
 }
+
+/* Bastion server to use to access containers */
+resource "aws_security_group" "bastion" {
+  vpc_id      = "${aws_vpc.vpc.id}"
+  name        = "${var.environment}-bastion-host"
+  description = "Allow SSH to bastion host"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8
+    to_port     = 0
+    protocol    = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name        = "${var.environment}-bastion-sg"
+    Environment = "${var.environment}"
+  }
+}
+
+resource "aws_instance" "bastion" {
+  ami                         = "${lookup(var.bastion_ami, var.region)}"
+  instance_type               = "t2.micro"
+  key_name                    = "${var.key_name}"
+  monitoring                  = true
+  vpc_security_group_ids      = ["${aws_security_group.bastion.id}"]
+  subnet_id      = "${element(aws_subnet.public_subnet.*.id, count.index)}"
+  associate_public_ip_address = true
+
+  tags {
+    Name        = "${var.environment}-bastion"
+    Environment = "${var.environment}"
+  }
+}
+
