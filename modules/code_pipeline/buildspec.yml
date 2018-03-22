@@ -26,7 +26,7 @@ phases:
       - docker push $OSTICKET_REPO_URI:latest
       - echo Writing image definitions file...
       - printf '[{"name":"mysql","imageUri":"%s"}]' $MYSQL_REPO_URI:latest > imagedefinitions_mysql.json
-      - printf '[{"name":"campbellsoftwaresolutions/osticket","imageUri":"%s"}]' $OSTICKET_REPO_URI:latest > imagedefinitions_osticket.json
+      - printf '[{"name":"osticket","imageUri":"%s"}]' $OSTICKET_REPO_URI:latest > imagedefinitions_osticket.json
       - aws ecs run-task --launch-type FARGATE --cluster ${cluster_name} --task-definition ${environment}_mysql --network-configuration "awsvpcConfiguration={subnets=[${subnet_id}],securityGroups=[${security_group_ids}]}"
       - aws ecs run-task --launch-type FARGATE --cluster ${cluster_name} --task-definition ${environment}_osticket --network-configuration "awsvpcConfiguration={subnets=[${subnet_id}],securityGroups=[${security_group_ids}]}"
 artifacts:

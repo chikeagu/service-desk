@@ -111,13 +111,13 @@ resource "aws_codepipeline" "pipeline" {
         Owner      = "chikeagu"
         Repo       = "service-desk-docker"
         Branch     = "master"
-        OAuthToken = "0c6b0fb157431ae42eafe124e00bea8560c26422"
+        OAuthToken = "760bb3b2834bde86f10592a12e165a0da76a88e2"
       }
     }
   }
 
   stage {
-    name = "Build_0"
+    name = "Build"
 
     action {
       name             = "Build"
@@ -126,30 +126,12 @@ resource "aws_codepipeline" "pipeline" {
       provider         = "CodeBuild"
       version          = "1"
       input_artifacts  = ["source"]
-      output_artifacts = ["imagedefinitions_mysql"]
+      output_artifacts = ["imagedefinitions"]
 
       configuration {
         ProjectName = "service-desk-codebuild"
       }
     }
-  }
-
-  stage {
-    name = "Build_1"
-
-    action {
-      name             = "Build"
-      category         = "Build"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      version          = "1" 
-      input_artifacts  = ["source"]
-      output_artifacts = ["imagedefinitions_osticket"]
-
-      configuration {
-        ProjectName = "service-desk-codebuild"
-      }   
-    }   
   }
 
   stage {
@@ -160,7 +142,7 @@ resource "aws_codepipeline" "pipeline" {
       category        = "Deploy"
       owner           = "AWS"
       provider        = "ECS"
-      input_artifacts = ["imagedefinitions_mysql"]
+      input_artifacts = ["imagedefinitions"]
       version         = "1"
 
       configuration {
@@ -179,7 +161,7 @@ resource "aws_codepipeline" "pipeline" {
       category        = "Deploy"
       owner           = "AWS"
       provider        = "ECS"
-      input_artifacts = ["imagedefinitions_osticket"]
+      input_artifacts = ["imagedefinitions"]
       version         = "1"
 
       configuration {

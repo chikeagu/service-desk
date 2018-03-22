@@ -250,7 +250,7 @@ data "aws_ecs_task_definition" "osticket" {
 resource "aws_ecs_service" "osticket" {
   name            = "${var.environment}-osticket"
   task_definition = "${aws_ecs_task_definition.osticket.family}:${max("${aws_ecs_task_definition.osticket.revision}", "${data.aws_ecs_task_definition.osticket.revision}")}"
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
   cluster =       "${aws_ecs_cluster.cluster.id}"
   depends_on      = ["aws_iam_role_policy.ecs_service_role_policy"]
