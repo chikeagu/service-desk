@@ -1,0 +1,77 @@
+[
+  {
+    "name": "mysql",
+    "image": "${image_mysql}",
+    "memory": 300,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "mysql"
+      }
+    },
+    "environment": [
+      {
+        "name": "MYSQL_DATABASE",
+        "value": "${mysql_database}"
+      },
+      {
+        "name": "MYSQL_PASSWORD",
+        "value": "${mysql_password}"
+      },
+      {
+        "name": "MYSQL_ROOT_PASSWORD",
+        "value": "${mysql_root_password}"
+      },
+      {
+        "name": "MYSQL_USER",
+        "value": "${mysql_user}"
+      }
+    ]
+  },
+  { 
+    "name": "osticket",
+    "image": "${image_osticket}",
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "hostPort": 80
+      }
+    ],
+    "memory": 300,
+    "networkMode": "awsvpc",
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "osticket"
+      }
+    },
+    "environment": [
+      {
+        "name": "MYSQL_DATABASE",
+        "value": "${mysql_database}"
+      },
+      {
+        "name": "MYSQL_HOST",
+        "value": "${mysql_host}"
+      },
+      {
+        "name": "MYSQL_PASSWORD",
+        "value": "${mysql_password}"
+      },
+      {
+        "name": "MYSQL_ROOT_PASSWORD",
+        "value": "${mysql_root_password}"
+      },
+      {
+        "name": "MYSQL_USER",
+        "value": "${mysql_user}"
+      }
+    ]
+  }
+]
+
+
