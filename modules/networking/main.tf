@@ -184,7 +184,7 @@ resource "aws_instance" "bastion" {
   instance_type               = "t2.micro"
   key_name                    = "${var.key_name}"
   monitoring                  = true
-  vpc_security_group_ids      = ["${aws_security_group.bastion.id}"]
+  vpc_security_group_ids      = ["${aws_security_group.bastion.id}", "${aws_security_group.default.id}"]
   subnet_id      = "${element(aws_subnet.public_subnet.*.id, count.index)}"
   associate_public_ip_address = true
 

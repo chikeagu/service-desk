@@ -28,3 +28,5 @@ variable "environment" {}
 variable "osticket_repo_url" {}
 
 variable "mysql_repo_url" {}
+
+variable "key_name" {}

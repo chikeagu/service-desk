@@ -58,6 +58,7 @@ data "template_file" "buildspec" {
     subnet_id          = "${var.run_task_subnet_id}"
     security_group_ids = "${join(",", var.run_task_security_group_ids)}"
     environment        = "${var.environment}"
+    key_name           = "${var.key_name}"
   }
 }
 
@@ -111,7 +112,7 @@ resource "aws_codepipeline" "pipeline" {
         Owner      = "chikeagu"
         Repo       = "service-desk-docker"
         Branch     = "master"
-        OAuthToken = "f7e4280bb1c779546ff33b84400b78e6e1422911"
+        OAuthToken = "79eed791ae80d6178f6e1ff719ba683970244c53"
       }
     }
   }
