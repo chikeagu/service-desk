@@ -3,6 +3,13 @@
     "name": "mysql",
     "image": "${image}",
     "memory": 300,
+    "portMappings": [
+      {
+        "containerPort": 3306,
+        "hostPort": 3306,
+        "protocol": "tcp"
+      }
+    ],
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
